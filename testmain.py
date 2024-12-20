@@ -1,3 +1,47 @@
+"""
+Telegram Star Shop Bot - Main Bot File
+Version: 1.0
+
+Description:
+A Telegram bot for purchasing and earning Telegram stars through referrals,
+optimized for serverless deployment on Vercel. Features a user-friendly 
+interface with secure payment processing and affiliate program management.
+
+Key Features:
+1. Star Purchase System:
+   - Processes star purchases (minimum 50 stars)
+   - Price calculation (0.00255 USD per star)
+   - Generates unique order IDs for tracking
+   - 15-minute payment window
+   - TON network payments
+
+2. Affiliate Program:
+   - Earn 1 star per successful referral
+   - 5% commission on referral's first purchase
+   - Minimum withdrawal: 100 stars
+   - Anti-self-referral protection
+   - Referral tracking and statistics
+
+3. Admin Features:
+   - Real-time usage statistics
+   - User tracking
+   - Performance metrics via /stats command
+
+Technical Implementation:
+- Webhook-based updates for serverless operation
+- FastAPI for handling Telegram updates
+- Supabase for persistent data storage
+- Markdown V2 formatting for messages
+- Environment variable based configuration
+
+Deployment:
+- Optimized for Vercel serverless functions
+- Timeout handling for long operations
+- Efficient webhook processing
+- Cloud database integration
+"""
+
+
 import os
 import logging
 import asyncio
@@ -17,42 +61,6 @@ from telegram.ext import (
 )
 from database import init_db, increment_referral_count, get_referral_count, get_usage_stats, cleanup_old_stats, get_unique_users_count, add_new_user
 
-"""
-Telegram Star Shop Bot - Main Bot File
-Version: 1.0
-
-Description:
-A Telegram bot for purchasing and earning Telegram stars through referrals.
-Features a user-friendly interface with secure payment processing and 
-affiliate program management.
-
-Key Features:
-1. Star Purchase System:
-   - Processes star purchases (minimum 50 stars)
-   - Price calculation (0.00255 USD per star)
-   - Generates unique order IDs for tracking
-   - 15-minute payment window
-   - TON network payments
-
-2. Affiliate Program:
-   - Earn 1 star per successful referral
-   - 5% commission on referral's first purchase
-   - Minimum withdrawal: 100 stars
-   - Anti-self-referral protection
-   - Referral tracking and statistics
-
-3. Admin Features:
-   - Real-time usage statistics
-   - Concurrent user monitoring
-   - Performance metrics via /stats command
-
-Technical Implementation:
-- Async/await pattern for efficient handling
-- Connection pooling for concurrent users
-- Markdown V2 formatting for messages
-- Persistent SQLite database storage
-- Environment variable based configuration
-"""
 
 # Load environment variables
 load_dotenv()
