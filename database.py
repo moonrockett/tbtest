@@ -1,11 +1,48 @@
+"""
+Telegram Star Shop Bot - Database Handler
+Version: 1.0
+
+Description:
+Supabase database handler for serverless environment on Vercel.
+Handles user tracking and referral management with cloud storage.
+
+Technical Features:
+1. Database Management:
+   - PostgreSQL database via Supabase
+   - Serverless-friendly implementation
+   - Row Level Security (RLS) enabled
+   - Service role authentication
+
+2. Data Storage:
+   - Permanent referral tracking
+   - User registration tracking
+   - Efficient data structure
+   - Cloud-based persistent storage
+
+3. Core Functions:
+   - User registration tracking
+   - Referral count management
+   - Usage statistics
+   - Unique user counting
+
+Tables Structure:
+- users: Stores user IDs and registration dates
+- referrals: Tracks referral counts per user
+
+Security:
+- Uses Supabase service role key for admin access
+- RLS policies for data protection
+- Secure cloud storage
+"""
+
 from supabase import create_client
 import os
 from datetime import datetime, timedelta
 
-# Initialize Supabase client
+# Initialize Supabase client with service role key
 supabase = create_client(
     os.getenv('SUPABASE_URL'),
-    os.getenv('SUPABASE_KEY')
+    os.getenv('SUPABASE_SERVICE_KEY')  # Use service role key instead of anon key
 )
 
 def init_db():
