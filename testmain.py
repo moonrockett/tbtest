@@ -1,7 +1,6 @@
 import os
 import logging
 import asyncio
-import nest_asyncio
 import random
 import string
 from dotenv import load_dotenv
@@ -55,9 +54,6 @@ Technical Implementation:
 - Environment variable based configuration
 """
 
-# Apply nest_asyncio to allow nested event loops
-nest_asyncio.apply()
-
 # Load environment variables
 load_dotenv()
 
@@ -78,9 +74,42 @@ def generate_random_string(length=15):
     characters = string.ascii_letters + string.digits
     return ''.join(random.choice(characters) for _ in range(length))
 
-# Initialize database when bot starts
+def setup_application(application: Application) -> None:
+    """Setup all handlers and commands for the application"""
+    
+    # Set up bot commands menu
+    commands = [
+        ("start", "Start the bot and show main menu"),
+    ]
+    
+    async def setup_commands():
+        await application.bot.set_my_commands(commands)
+        logger.info("Bot commands menu set up successfully")
+
+    # Create conversation handler
+    conv_handler = ConversationHandler(
+        entry_points=[
+            CommandHandler("start", start),
+            CallbackQueryHandler(button_callback)
+        ],
+        states={
+            EXPECTING_NUMBER: [
+                MessageHandler(filters.TEXT & ~filters.COMMAND, process_number),
+                CallbackQueryHandler(button_callback)
+            ]
+        },
+        fallbacks=[CommandHandler("start", start)]
+    )
+
+    # Register handlers
+    application.add_handler(conv_handler)
+    application.add_handler(CommandHandler("stats", stats))
+    
+    # Run setup commands
+    application.create_task(setup_commands())
+
 async def main() -> None:
-    """Start the bot."""
+    """Start the bot in polling mode (for local development)"""
     # Initialize database
     init_db()
     
@@ -92,35 +121,9 @@ async def main() -> None:
 
     try:
         application = Application.builder().token(token).build()
-
-        # Set up bot commands menu
-        commands = [
-            ("start", "Start the bot and show main menu"),
-        ]
+        setup_application(application)
         
-        await application.bot.set_my_commands(commands)
-        logger.info("Bot commands menu set up successfully")
-
-        # Create conversation handler
-        conv_handler = ConversationHandler(
-            entry_points=[
-                CommandHandler("start", start),
-                CallbackQueryHandler(button_callback)
-            ],
-            states={
-                EXPECTING_NUMBER: [
-                    MessageHandler(filters.TEXT & ~filters.COMMAND, process_number),
-                    CallbackQueryHandler(button_callback)
-                ]
-            },
-            fallbacks=[CommandHandler("start", start)]
-        )
-
-        # Register handler
-        application.add_handler(conv_handler)
-        application.add_handler(CommandHandler("stats", stats))
-
-        logger.info("Starting bot...")
+        logger.info("Starting bot in polling mode...")
         await application.run_polling(allowed_updates=Update.ALL_TYPES)
 
     except Exception as e:
